@@ -39,16 +39,22 @@ exports.createUser = async (req, res) => {
   }
 };
 
-exports.loginUser = async (req, res) => { 
-  const user = req.user
-  res
-    .cookie("jwt", req.user.token, {
-      expires: new Date(Date.now() + 3600000),
-      httpOnly: true,
-    })
-    .status(201)
-    .json({id:user.id, role:user.role});
+exports.loginUser = async (req, res) => {
+  try {
+    const user = req.user;
+    res
+      .cookie('jwt', user.token, {
+        expires: new Date(Date.now() + 3600000),
+        httpOnly: true,
+      })
+      .status(201)
+      .json({ id: user.id, role: user.role });
+  } catch (error) {
+    res.status(404).json({message:error})
+  }
+ 
 };
+
 
 exports.checkUser = async (req, res) => {
   if (req.user) 
@@ -56,3 +62,8 @@ exports.checkUser = async (req, res) => {
   else 
   res.status(401);
 };
+exports.logout = async (req, res) => {
+  // req.logout(); // This will clear the login session
+  res.clearCookie('jwt', { path: '/' }).status(200).send();
+};
+
